@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"Scheduled Commercial Banks (SCBs) recorded a strong non-food credit growth during FY26. What was the year-on-year (YoY) growth rate reported by SCBs?", options:["14.1%","15.9%","16.2%","17.5%"], answer:1},
+
+{q:"According to the FY26 banking credit data, which sector witnessed the highest credit growth among the following?", options:["Agriculture & Allied Activities","Industrial Sector","Services Sector","Personal Loans"], answer:2},
+
+{q:"Within the industrial sector, credit growth to which category of industries was the highest during FY26?", options:["Large Industries","Medium Industries","Micro & Small Industries","Infrastructure Industries"], answer:2},
+
+{q:"AU Small Finance Bank (AU SFB) launched four new credit cards to strengthen its retail credit card business. Which of the following cards is specifically targeted at first-time credit users?", options:["AU Ananta","AU Laksya","AU Tejas","AU Prathama"], answer:3},
+
+{q:"The AU Laksya Credit Card launched by AU Small Finance Bank is primarily designed for:", options:["Premium travelers","Gen Z and mid-career professionals","Senior citizens","Rural entrepreneurs"], answer:1},
+
+{q:"Which AU Small Finance Bank credit card offers premium travel and lifestyle benefits?", options:["AU Prathama","AU Tejas","AU Ananta","AU Laksya"], answer:2},
+
+{q:"AU Small Finance Bank was originally established in 1996 as:", options:["AU Banking Corporation","AU Finance India","AU Financiers","AU Capital Services"], answer:2},
+
+{q:"CTBC Bank became the first Taiwanese bank to establish operations in India’s premier International Financial Services Centre (IFSC). The branch was opened at:", options:["IFSC Kochi","GIFT City, Gandhinagar","BKC Mumbai","Fintech Valley Vizag"], answer:1},
+
+{q:"The regulatory authority that approved CTBC Bank’s branch at GIFT City is:", options:["RBI","SEBI","IFSCA","IRDAI"], answer:2},
+
+{q:"International Financial Services Centres Authority (IFSCA), which regulates GIFT IFSC, was established in:", options:["2018","2019","2020","2021"], answer:2},
+
+{q:"IDFC FIRST Bank launched the FD-backed Business Multiplier Metal Credit Card primarily for:", options:["Government employees","Exporters only","Founders, entrepreneurs and business owners","Senior citizens"], answer:2},
+
+{q:"The minimum Fixed Deposit (FD) amount required to obtain the Business Multiplier Metal Credit Card is:", options:["₹25,000","₹50,000","₹75,000","₹1,00,000"], answer:1},
+
+{q:"Which unique feature is offered by IDFC FIRST Bank’s Business Multiplier Metal Credit Card?", options:["5% Forex Markup","Credit limit equal to 75% of FD value","100% FD value as credit limit","No reward points facility"], answer:2},
+
+{q:"ICICI Bank, in partnership with Visa, launched India’s first USD-denominated debit card for:", options:["Foreign tourists","Corporate customers","Resident Indians","Non-Resident Indians (NRIs)"], answer:3},
+
+{q:"The newly launched USD-denominated debit card by ICICI Bank is linked to:", options:["NRE Savings Account","FCNR Account","USD Global Savings Account","EEFC Account"], answer:2},
+
+{q:"Which platform powers ICICI Bank’s USD-denominated debit card for NRIs?", options:["Visa Signature","Visa Infinite","RuPay Select","Mastercard World Elite"], answer:1},
+
+{q:"The USD-denominated debit card launched by ICICI Bank eliminates:", options:["Annual maintenance charges","ATM withdrawal charges","Foreign exchange markup fee and GST","Debit card issuance fee"], answer:2},
+
+{q:"Viyona Fintech India Pvt. Ltd. received certification from NPCI for all of the following except:", options:["UPI Acquirer","UPI Issuer","NEFT Gateway Operator","IMPS Integration"], answer:2},
+
+{q:"NPCI, the umbrella organization behind UPI, IMPS and RuPay, was promoted jointly by:", options:["RBI and NABARD","RBI and IBA","RBI and SIDBI","SEBI and RBI"], answer:1},
+
+{q:"Which of the following is NOT a flagship product of NPCI?", options:["Bharat BillPay","FASTag","RuPay","SWIFT"], answer:3},
+
+{q:"Bajaj General Insurance launched ‘My Health Care Plan Edge+’ (MHCP EDGE+). The maximum coverage offered under the plan is:", options:["₹1 Crore","₹2 Crore","₹3 Crore","₹5 Crore"], answer:3},
+
+{q:"MHCP EDGE+ has been introduced primarily to:", options:["Promote term insurance","Reduce out-of-pocket healthcare expenses","Encourage investments in ULIPs","Provide pension benefits"], answer:1},
+
+{q:"Insurance regulator IRDAI is headquartered in:", options:["Mumbai","New Delhi","Hyderabad","Bengaluru"], answer:2},
+
+{q:"Qube Research & Technologies (QRT) became the first global High-Frequency Trading (HFT) firm to establish operations in:", options:["NSE IFSC","Mumbai International Finance Centre","GIFT IFSC","Chennai Fintech Zone"], answer:2},
+
+{q:"QRT received approval to launch which category of Alternative Investment Fund (AIF) at GIFT IFSC?", options:["Category I AIF","Category II AIF","Category III AIF","Venture Capital Fund"], answer:2},
+
+{q:"Category III Alternative Investment Funds (AIFs) are generally associated with:", options:["Social impact investments","Infrastructure development","Complex trading strategies using leverage and derivatives","Agricultural financing"], answer:2},
+
+{q:"One MobiKwik Systems Ltd. received RBI’s in-principle approval for which licence?", options:["Small Finance Bank Licence","Universal Bank Licence","Payment Aggregator–Physical (PA-P) Licence","White Label ATM Licence"], answer:2},
+
+{q:"The PA-P licence will allow MobiKwik to:", options:["Issue currency notes","Process offline merchant payments directly","Operate as a stock exchange","Provide insurance underwriting"], answer:1},
+
+{q:"MobiKwik was founded in:", options:["2007","2008","2009","2010"], answer:2},
+
+{q:"LIC launched ‘New Jeevan Sathi Single Premium’ and ‘New Jeevan Sathi Limited Premium’ plans. These products are primarily:", options:["Pension products","ULIP products","Joint life savings plans for married couples","Pure term insurance plans"], answer:2},
+
+{q:"The new LIC plans launched under ‘New Jeevan Sathi’ are:", options:["Market-linked products","Equity-oriented products","Non-par, non-market linked products","Variable insurance products"], answer:2},
+
+{q:"Which senior LIC official launched the new Jeevan Sathi plans?", options:["Siddhartha Mohanty","M. Nagaraju","R. Doraiswamy","Sat Pal Bhanoo"], answer:2},
+
+{q:"The motto of Life Insurance Corporation of India (LIC) is:", options:["Sarve Bhavantu Sukhinah","Yogakshemam Vahamyaham","Banking for All","Trusted for Life"], answer:1},
+
+{q:"Scheduled Commercial Banks (SCBs) in India are regulated by:", options:["NABARD","SEBI","Department of Financial Services","Reserve Bank of India"], answer:3},
+
+{q:"As per FY26 data, the total outstanding credit of Scheduled Commercial Banks stood at approximately:", options:["₹198.4 lakh crore","₹205.6 lakh crore","₹212.9 lakh crore","₹225.1 lakh crore"], answer:2},
+
+{q:"Which segment primarily drove the 19% credit growth recorded in the services sector during FY26?", options:["Tourism and Hospitality","NBFCs, Trade and Commercial Real Estate","IT Services only","Telecommunications"], answer:1},
+
+{q:"The personal loan segment registered growth of:", options:["14.2%","15.1%","16.2%","18.4%"], answer:2},
+
+{q:"A basis point (bps), frequently used in monetary policy and banking, is equal to:", options:["0.001%","0.01%","0.1%","1%"], answer:1},
+
+{q:"Which of the following combinations is correctly matched?", options:["Visa – Established in 1966","NPCI – Established in 2005","IFSCA – Established in 2020","IRDAI – Established in 1995"], answer:2},
+
+{q:"Which organization’s headquarters is located in Foster City, California, USA?", options:["Mastercard","Visa","American Express","Discover Financial Services"], answer:1},
+
+{q:"The Asian Infrastructure Investment Bank (AIIB) launched the Energy, Food Security and Economic Resilience Facility to support countries affected by the Middle East conflict. What is the maximum financial outlay approved under this facility over a two-year period?", options:["USD 5 billion","USD 7.5 billion","USD 10 billion","USD 12 billion"], answer:2},
+
+{q:"The Energy, Food Security and Economic Resilience Facility launched by the Asian Infrastructure Investment Bank (AIIB) is primarily intended to provide which of the following forms of support to affected economies?", options:["Only infrastructure grants","Budgetary assistance, liquidity support and food-energy security financing","Exclusive sovereign debt restructuring","Equity investment in private corporations"], answer:1},
+
+{q:"Which multilateral development bank headquartered in Beijing, China, announced the launch of the Energy, Food Security and Economic Resilience Facility in 2026?", options:["Asian Development Bank (ADB)","New Development Bank (NDB)","Asian Infrastructure Investment Bank (AIIB)","International Finance Corporation (IFC)"], answer:2},
+
+{q:"Jin Liqun, associated with the launch of the USD 10 billion resilience facility, currently serves as the:", options:["President of AIIB","President of ADB","Managing Director of IMF","Secretary-General of OECD"], answer:0},
+
+{q:"NPCI International Payments Limited (NIPL) and ACLEDA Bank Plc. launched UPI acceptance in Cambodia through Bakong’s KHQR platform. This initiative enables Indian travellers to make QR-code payments at approximately how many Cambodian merchants during Phase-I?", options:["2.5 million","3 million","4.5 million","5.5 million"], answer:2},
+
+{q:"With the launch of UPI acceptance through KHQR, Cambodia became which country to officially accept Unified Payments Interface (UPI) payments?", options:["7th","8th","9th","10th"], answer:2},
+
+{q:"The cross-border payment initiative between NPCI International Payments Limited (NIPL) and ACLEDA Bank Plc. utilizes which national QR code platform of Cambodia?", options:["PromptPay QR","KHQR","DuitNow QR","QRIS"], answer:1},
+
+{q:"NPCI International Payments Limited (NIPL), responsible for expanding UPI and RuPay internationally, primarily functions as:", options:["A payment bank subsidiary of RBI","The international arm of NPCI","A foreign exchange settlement agency","An overseas banking regulator"], answer:1},
+
+{q:"The capital city of Cambodia, where UPI acceptance has now been enabled through KHQR, is:", options:["Siem Reap","Battambang","Phnom Penh","Kampot"], answer:2},
+
+{q:"The Asian Development Bank (ADB) entered into a strategic partnership with Standard Chartered Bank under which programme to strengthen supply chain finance in India?", options:["Trade Finance Expansion Programme","Trade and Supply Chain Finance Programme","MSME Credit Enhancement Programme","Export Competitiveness Programme"], answer:1},
+
+{q:"The partnership between ADB and Standard Chartered Bank aims primarily to improve financing access for:", options:["Large multinational corporations","Government-owned enterprises","SMEs and underserved businesses","Infrastructure-only companies"], answer:2},
+
+{q:"Which of the following was highlighted as the first-ever engagement by ADB in distributor financing in India?", options:["SIDBI–ADB Partnership","ADB–Standard Chartered Partnership","ADB–NABARD Credit Initiative","ADB–EXIM Bank Facility"], answer:1},
+
+{q:"The supply chain finance partnership between ADB and Standard Chartered covers transactions denominated in:", options:["Only USD","Only INR","EUR and USD","Both USD and INR"], answer:3},
+
+{q:"Masato Kanda is associated with which of the following organizations?", options:["Asian Infrastructure Investment Bank (AIIB)","Asian Development Bank (ADB)","International Monetary Fund (IMF)","New Development Bank (NDB)"], answer:1},
+
+{q:"BharatPe, in partnership with YES BANK, launched a Credit-on-UPI solution called:", options:["BharatPe SmartPay","BharatPe CreditLine","BharatPe Flex","BharatPe UPI Plus"], answer:2},
+
+{q:"BharatPe Flex offers users an interest-free repayment period of up to:", options:["30 days","45 days","60 days","90 days"], answer:1},
+
+{q:"Which bank partnered with BharatPe to launch the Credit-on-UPI solution known as BharatPe Flex?", options:["ICICI Bank","HDFC Bank","Axis Bank","YES BANK"], answer:3},
+
+{q:"A key feature of BharatPe Flex is that users may:", options:["Convert dues into EMIs","Trade securities directly through UPI","Open current accounts instantly","Access international remittances free of cost"], answer:0},
+
+{q:"BharatPe, which recently launched BharatPe Flex, was founded in:", options:["2016","2017","2018","2019"], answer:2},
+
+{q:"Maruti Suzuki India Limited (MSIL) partnered with AU Small Finance Bank to launch an RD-backed auto loan scheme named:", options:["Smart Mobility","Suhana Safar","Easy Drive Plus","Auto Suraksha"], answer:1},
+
+{q:"Under the Suhana Safar scheme, customers are generally required to deposit approximately what proportion of the expected EMI into a recurring deposit account?", options:["50%","60%","70%","80%"], answer:3},
+
+{q:"The recurring deposit tenure under Maruti Suzuki’s Suhana Safar scheme ranges between:", options:["1–3 months","2–4 months","3–6 months","6–12 months"], answer:2},
+
+{q:"Which of the following Maruti Suzuki models is covered under the Suhana Safar scheme?", options:["Grand Vitara","Brezza","Baleno","Alto K10"], answer:3},
+
+{q:"The primary objective of the Suhana Safar scheme is to:", options:["Promote luxury vehicle sales","Help buyers accumulate down-payment savings and improve loan eligibility","Reduce GST on vehicle purchases","Encourage used-car financing"], answer:1},
+
+{q:"Bank of India (BOI) launched a dedicated Strategic Business Branch (SBB) in:", options:["BKC, Mumbai","Nariman Point, Mumbai","Lower Parel, Mumbai","Fort, Mumbai"], answer:1},
+
+{q:"The Strategic Business Branch (SBB) launched by Bank of India focuses on all of the following except:", options:["Co-Lending","TReDS","Supply Chain Finance","Agricultural Warehousing Operations"], answer:3},
+
+{q:"Pool Buyout transactions, one of the focus areas of BOI’s Strategic Business Branch, involve:", options:["Purchase of loan portfolios from NBFCs or banks","Acquisition of government securities","Bulk purchase of corporate bonds","Investment in venture capital funds"], answer:0},
+
+{q:"The tagline of Bank of India (BOI) is:", options:["Trusted Family Banker","Banking for Progress","Relationships Beyond Banking","Nation’s Partner in Growth"], answer:2},
+
+{q:"State Bank of India (SBI) handed over a dividend cheque of ₹8,813 crore for FY 2025–26 to the Government of India. The cheque was presented by:", options:["Dinesh Kumar Khara","Challa Sreenivasulu Setty","Rajnish Kumar","Arundhati Bhattacharya"], answer:1},
+
+{q:"The dividend cheque from SBI was received on behalf of the Government of India by:", options:["Pankaj Chaudhary","M. Nagaraju","Nirmala Sitharaman","Tuhin Kanta Pandey"], answer:2},
+
+{q:"State Bank of India (SBI), which paid the dividend, was established in:", options:["1935","1949","1955","1969"], answer:2},
+
+{q:"Under the Pradhan Mantri Jan Dhan Yojana (PMJDY), the number of accounts opened across India has crossed:", options:["52 crore","55 crore","58 crore","60 crore"], answer:2},
+
+{q:"According to the latest PMJDY data, women account holders constitute approximately what percentage of total Jan Dhan accounts?", options:["48%","52%","56%","61%"], answer:2},
+
+{q:"Rural and semi-urban accounts account for approximately what percentage of total Jan Dhan accounts?", options:["57%","62%","67%","72%"], answer:2},
+
+{q:"The Pradhan Mantri Jan Dhan Yojana (PMJDY) was launched on:", options:["15 August 2014","2 October 2014","26 January 2014","28 August 2014"], answer:3},
+
+{q:"The motto of Pradhan Mantri Jan Dhan Yojana (PMJDY) is:", options:["Sabka Bank, Sabka Vikas","Financial Inclusion for All","Mera Khata, Bhagya Vidhata","Banking at Every Doorstep"], answer:2},
+
+{q:"NPCI International Payments Limited (NIPL) and Nepal Clearing House Ltd. (NCHL) launched a real-time cross-border remittance facility through:", options:["RuPay-NPS Linkage","UPI-NPI Linkage","IMPS-NCHL Corridor","Bharat BillPay-Nepal Connect"], answer:1},
+
+{q:"The India–Nepal cross-border remittance service became operational from:", options:["1 June 2026","5 June 2026","6 June 2026","10 June 2026"], answer:2},
+
+{q:"A key feature of the India–Nepal UPI-NPI linkage is that users can send money using:", options:["SWIFT code only","Bank account number only","Mobile number or Virtual Payment Address (VPA)","Debit card credentials"], answer:2},
+
+{q:"Bajaj Finserv launched “Finserv Intelligence” in collaboration with:", options:["IIT Delhi","IIT Madras","IIT Bombay","IIT Kanpur"], answer:2},
+
+{q:"The Finserv Intelligence initiative by Bajaj Finserv focuses on research and innovation in:", options:["AI, Cybersecurity and Quantum Technologies","Biotechnology and Agriculture","Space Technology and Defence Systems","Renewable Energy and Carbon Trading"], answer:0},
+
+{q:"Bajaj Finserv plans to invest approximately how much in AI innovation startups over the next five years under the Finserv Intelligence initiative?", options:["₹500–1,000 crore","₹1,000–1,500 crore","₹1,500–2,000 crore","₹2,500–3,000 crore"], answer:2},
+
+{q:"Which of the following is NOT specifically listed as a component of the Finserv Intelligence initiative?", options:["Joint Research Centre","Centres of Excellence","Scholars-in-Residence Programme","Sovereign Innovation Fund"], answer:3},
+
+{q:"NPCI, the parent organization behind UPI whose international arm NIPL launched payment connectivity initiatives in Cambodia and Nepal, was established in:", options:["2006","2007","2008","2009"], answer:2},
+
+{q:"The insurance distribution partnership between Shriram General Insurance and Piramal Finance is expected to cover more than how many pin codes across India?", options:["8,000+","10,000+","13,000+","15,000+"], answer:2},
+
+{q:"Shriram General Insurance, which recently partnered with Piramal Finance, has its headquarters located in:", options:["Mumbai, Maharashtra","Jaipur, Rajasthan","Ahmedabad, Gujarat","Pune, Maharashtra"], answer:1},
+
+{q:"Canara HSBC Life Insurance announced a strategic bancassurance partnership with West Bengal Gramin Bank (WBGB). What is the key purpose of this collaboration?", options:["Promote mutual fund investments","Expand life insurance coverage in rural India","Launch digital-only banking services","Offer international remittance products"], answer:1},
+
+{q:"The bancassurance partnership between Canara HSBC Life Insurance and West Bengal Gramin Bank will leverage approximately how many WBGB branches?", options:["760 branches","860 branches","960 branches","1060 branches"], answer:2},
+
+{q:"West Bengal Gramin Bank (WBGB), which partnered with Canara HSBC Life Insurance, is headquartered at:", options:["Kolkata","Siliguri","Berhampore","Durgapur"], answer:2},
+
+{q:"Canara HSBC Life Insurance, which recently expanded its rural insurance outreach through WBGB, was established in:", options:["2006","2007","2008","2009"], answer:2},
+
+{q:"Ageas Federal Life Insurance entered into a digital distribution partnership with Policybazaar. Which product was identified as the initial focus under this collaboration?", options:["Guaranteed Pension Plan","Magic Savings Plan","Whole Life Wealth Plan","Children Education Plan"], answer:1},
+
+{q:"The partnership between Ageas Federal Life Insurance and Policybazaar aligns with which long-term regulatory vision announced by the Insurance Regulatory and Development Authority of India (IRDAI)?", options:["Financial Inclusion by 2035","Insurance Access for Every Village","Insurance for All by 2047","Universal Life Cover by 2050"], answer:2},
+
+{q:"Policybazaar, which entered into a digital insurance distribution partnership with Ageas Federal Life Insurance, is headquartered in:", options:["Noida","Mumbai","Bengaluru","Gurugram"], answer:3},
+
+{q:"Ageas Federal Life Insurance, which recently partnered with Policybazaar, has its headquarters in:", options:["Mumbai","Pune","Hyderabad","Chennai"], answer:0},
+
+{q:"Bank of Baroda (BoB) launched UIDAI-based face authentication and biometric payment capabilities on which digital payment platform?", options:["bob World","bob इ Pay","Baroda M-Connect Plus","Baroda UPI Connect"], answer:1},
+
+{q:"The UIDAI-based biometric authentication introduced by Bank of Baroda on bob इ Pay can be used for UPI transactions up to what maximum amount?", options:["₹2,000","₹5,000","₹10,000","₹15,000"], answer:1},
+
+{q:"The biometric payment authentication facility introduced by Bank of Baroda supports which transaction categories?", options:["Only Person-to-Person (P2P)","Only Person-to-Merchant (P2M)","Both P2P and P2M transactions","Only cross-border UPI transactions"], answer:2},
+
+{q:"Bank of Baroda (BoB), which launched face authentication on bob इ Pay, was established in which year?", options:["1906","1907","1908","1910"], answer:2},
+
+{q:"Decentro became the first Indian Payment Aggregator (PA) to receive final approval to operate as a Payment Service Provider (PSP) in GIFT City. The approval was granted by:", options:["RBI","SEBI","IFSCA","NPCI"], answer:2},
+
+{q:"The fintech company Decentro, which became the first Indian Payment Aggregator to secure PSP approval at GIFT City, was established in:", options:["2018","2019","2020","2021"], answer:2},
+
+{q:"Which fintech company became the first Indian Payment Aggregator to secure final approval as a Payment Service Provider (PSP) at GIFT City?", options:["Cashfree Payments","Razorpay","PayU","Decentro"], answer:3},
+
+{q:"Under the PSP framework, Decentro plans to launch which of the following services?", options:["Merchant acquisition and escrow services","Merchant acquisition and virtual account issuance","Cross-border money transfers","All of the above"], answer:3},
+
+{q:"The International Financial Services Centres Authority (IFSCA), regulator of GIFT IFSC, is headquartered in:", options:["Mumbai","New Delhi","GIFT City, Gandhinagar","Ahmedabad"], answer:2},
+
+{q:"Karur Vysya Bank (KVB) launched four premium credit card variants on the Visa platform. Which card is specifically positioned for online shoppers?", options:["Samara","Altura","Eternis","Aura"], answer:3},
+
+{q:"Among the newly launched Karur Vysya Bank credit cards, which Visa Infinite variant offers a welcome bonus of 10,000 reward points along with hotel stay benefits?", options:["Aura","Samara","Altura","Eternis"], answer:3},
+
+{q:"Which Karur Vysya Bank credit card variant is targeted towards dining, online shopping and OTT subscription benefits?", options:["Aura","Samara","Altura","Eternis"], answer:1},
+
+{q:"Decentro became the first Indian Payment Aggregator (PA) to secure final approval from the International Financial Services Centres Authority (IFSCA) to operate as a Payment Service Provider (PSP) at GIFT City. Under the PSP framework, Decentro plans to offer merchant acquisition, virtual account issuance, cross-border money transfers and which other service?", options:["Escrow services","Trade finance services","Digital lending services","Custody services"], answer:0},
+
+{q:"Karur Vysya Bank (KVB), which launched four premium Visa credit cards, was established in:", options:["1914","1915","1916","1918"], answer:2},
+
+{q:"Indian Overseas Bank (IOB) received approval to establish an IFSC Banking Unit (IBU) at GIFT City. Which authority granted this approval?", options:["Reserve Bank of India","Ministry of Finance","IFSCA","SEBI"], answer:2},
+
+{q:"The approval granted to Indian Overseas Bank for establishing an IFSC Banking Unit (IBU) at GIFT City will enable the bank to undertake which activities?", options:["Only treasury operations","Only foreign currency transactions","Offshore banking, trade finance and international lending","Only export credit refinancing"], answer:2},
+
+{q:"Indian Overseas Bank had received prior authorization from the Reserve Bank of India (RBI) for its GIFT City plans in:", options:["October 2025","December 2025","January 2026","March 2026"], answer:1},
+
+{q:"Indian Overseas Bank (IOB), which received IFSCA approval for an IFSC Banking Unit, was founded by:", options:["M. Ct. M. Chidambaram Chettyar","R. K. Shanmukham Chetty","Sir R. K. Shanmugam","S. Annamalai Chettiar"], answer:0},
+
+{q:"According to S&P Global Market Intelligence, which Indian bank ranked as the best-capitalised lender in the Asia-Pacific region based on leverage ratio?", options:["HDFC Bank","ICICI Bank","Axis Bank","Kotak Mahindra Bank"], answer:3},
+
+{q:"S&P Global Market Intelligence assessed banks’ financial strength using which capital adequacy measure?", options:["Capital to Risk-Weighted Assets Ratio (CRAR)","Liquidity Coverage Ratio (LCR)","Leverage Ratio","Net Stable Funding Ratio (NSFR)"], answer:2},
+
+{q:"What leverage ratio was reported for Kotak Mahindra Bank when it was ranked among the best-capitalised banks in the Asia-Pacific region?", options:["14.56%","15.24%","16.56%","17.18%"], answer:2},
+
+{q:"Which of the following banks was NOT specifically mentioned among the Indian banks highlighted by S&P Global Market Intelligence for strong capitalisation?", options:["ICICI Bank","Axis Bank","State Bank of India","Union Bank of India"], answer:2},
+
+{q:"S&P Global, whose report highlighted Indian banks among Asia-Pacific’s best-capitalised lenders, has its headquarters in:", options:["Chicago, USA","Washington D.C., USA","New York, USA","Boston, USA"], answer:2},
+
+{q:"The leverage ratio used by S&P Global Market Intelligence as an indicator of financial strength is generally defined as:", options:["Tier-1 Capital divided by Risk Weighted Assets","Tier-1 Capital divided by Total Assets","Net Worth divided by Deposits","Capital Funds divided by Advances"], answer:1},
+
+{q:"Which of the following institutions is the regulatory authority for financial institutions operating within International Financial Services Centres (IFSCs) in India?", options:["National Payments Corporation of India (NPCI)","International Financial Services Centres Authority (IFSCA)","Insurance Regulatory and Development Authority of India (IRDAI)","Pension Fund Regulatory and Development Authority (PFRDA)"], answer:1},
+
+{q:"Karur Vysya Bank’s premium credit card portfolio launched on the Visa platform includes Aura, Samara, Altura and Eternis. Which of these cards is positioned as a Visa Signature product?", options:["Aura","Samara","Altura","Eternis"], answer:1},
+];
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
